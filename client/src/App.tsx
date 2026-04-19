@@ -6,6 +6,32 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  let ws: WebSocket;
+
+  function connect() {
+    ws = new WebSocket("ws://localhost:8080/ws")
+    ws.onopen = function() {
+      console.log("Connected To Server")
+    }
+
+    ws.onmessage = function(event) {
+      let message = document.getElementById("messages");
+      if (message) {
+        message.innerHTML += `<p>${event.data}</p>`;
+      }
+    };
+
+    ws.onclose = function() {
+      console.log("Connection Close")
+      setTimeout(connect, 1000);
+    }
+  }
+
+  function sendMessage() {
+      ws.send("Nice Message!")
+  }
+
+  connect()
 
   return (
     <>
@@ -16,17 +42,18 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+          <h1>Messages</h1>
+          <div id="messages">
+          </div>
+          
         </div>
         <button
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={sendMessage}
         >
-          Count is {count}
+          Send Message!
         </button>
+
       </section>
 
       <div className="ticks"></div>
